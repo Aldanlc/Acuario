@@ -2,16 +2,19 @@
 #define CUBO_H
 
 #include <glad/glad.h>
+#include "acuario.h"
 
-
-// Crea y configura la geometría base del cubo (VAO y VBO).
 void crearCubo();
-
-// Libera la memoria asociada a la geometría del cubo.
 void liberarCubo();
 
-// Exponemos el array de vértices del cubo y su tamaño total
-// para poder reutilizarlos desde otros archivos si hace falta.
+void crearSueloAcuario(Acuario& acuario);
+void crearAcuario(Acuario& acuario);
+
+void dibujarSueloAcuario(const Acuario& acuario, GLuint shaderProgram);
+void dibujarParedesAcuario(const Acuario& acuario, GLuint shaderProgram);
+
+extern GLuint VAO_CUBO;
+extern GLuint VBO_CUBO;
 extern float vertices[];
 extern const unsigned int verticesSize;
 
