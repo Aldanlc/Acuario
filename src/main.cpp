@@ -7,6 +7,7 @@
 #include "render.h"
 #include "input.h"
 #include "acuario.h"
+#include "pez.h"
 
 EstadoEntrada estadoEntrada;
 float deltaTime = 0.0f;
@@ -16,6 +17,8 @@ const unsigned int SCR_HEIGHT = 1000;
 
 RecursosRender recursos;
 Acuario acuario;
+const int NUM_PECES = 3;
+Pez peces[NUM_PECES];
 
 int main() {
     GLFWwindow* window = inicializarVentana(SCR_WIDTH, SCR_HEIGHT, "Acuario");
@@ -30,6 +33,7 @@ int main() {
     cargarRecursos(recursos);
     inicializarEstadoEntrada(estadoEntrada);
     inicializarAcuario(acuario);
+    inicializarPeces(peces, NUM_PECES, acuario);
 
     float ultimoFrame = glfwGetTime();
 
@@ -37,7 +41,8 @@ int main() {
         deltaTime = lapsoDeltaTime(ultimoFrame);
 
         processInput(window, estadoEntrada, deltaTime);
-        renderizarFrame(acuario, estadoEntrada, recursos);
+        actualizarPeces(peces, NUM_PECES, acuario, deltaTime);
+        renderizarFrame(acuario, peces, NUM_PECES, estadoEntrada, recursos);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

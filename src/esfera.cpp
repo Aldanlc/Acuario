@@ -7,8 +7,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <cmath>
 
-GLuint VAO_esfera;
-GLuint VBO_esfera;
 
 float vertices_esfera[] = 
 	{ -0.0247692f, 0.987385f, -0.156387f,
@@ -3611,28 +3609,23 @@ float vertices_esfera[] =
 	0.950000f, 0.100000f,
 	0.0964914f, -0.950057f, -0.294893f };
 
+GLuint VAO_esfera;
+GLuint VBO_esfera;
+
 void crearEsfera() {
-    // Reservamos y configuramos el VAO y el VBO de la esfera.
     glGenVertexArrays(1, &VAO_esfera);
     glGenBuffers(1, &VBO_esfera);
 
     glBindVertexArray(VAO_esfera);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO_esfera);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_esfera), vertices_esfera, GL_STATIC_DRAW);
 
-    // Atributo 1: normales.
-    // En esta geometría, los 3 primeros floats de cada vértice corresponden a la normal.
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
 
-    // Atributo 2: coordenadas de textura.
-    // Los 2 siguientes floats corresponden a las coordenadas (u, v).
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    // Atributo 0: posición.
-    // Los 3 últimos floats corresponden a la posición del vértice.
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(0);
 
@@ -3642,8 +3635,89 @@ void crearEsfera() {
 
 const unsigned int verticesEsferaSize = sizeof(vertices_esfera);
 
-void liberarEsfera(){
-    // Liberamos la memoria asociada al VAO y al VBO de la esfera.
-	glDeleteVertexArrays(1, &VAO_esfera);
-	glDeleteBuffers(1, &VBO_esfera);
+static void prepararColorEsferaPez(GLuint shaderProgram, const glm::vec3& color) {
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarTextura"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarTexturaSuelo"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarArbusto"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarColorUniform"), 1);
+    glUniform1f(glGetUniformLocation(shaderProgram, "alphaUniform"), 1.0f);
+    glUniform3f(glGetUniformLocation(shaderProgram, "colorUniform"), color.r, color.g, color.b);
+}
+
+static glm::mat4 crearMatrizParteEsfericaPez(const PiezaPez& pieza, const glm::mat4& modeloPadre) {
+    glm::mat4 model = modeloPadre;
+
+    model = glm::translate(model, pieza.posicionLocal);
+    model = glm::scale(model, pieza.escala);
+
+    return model;
+}
+
+void crearEsfera() {
+    glGenVertexArrays(1, &VAO_esfera);
+    glGenBuffers(1, &VBO_esfera);
+
+    glBindVertexArray(VAO_esfera);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_esfera);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_esfera), vertices_esfera, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void crearModeloPez(Pez& pez) {
+    float e = pez.escala;
+
+    pez.cuerpo.posicionLocal = glm::vec3(0.0f, 0.0f, 0.0f) * e;
+    pez.cuerpo.escala = glm::vec3(0.45f, 0.25f, 0.75f) * e;
+    pez.cuerpo.color = pez.color;
+
+    pez.cabeza.posicionLocal = glm::vec3(0.0f, 0.02f, 0.55f) * e;
+    pez.cabeza.escala = glm::vec3(0.35f, 0.22f, 0.32f) * e;
+    pez.cabeza.color = pez.color * 0.85f;
+
+    pez.cola.posicionLocal = glm::vec3(0.0f, 0.0f, -0.72f) * e;
+    pez.cola.escala = glm::vec3(0.08f, 0.36f, 0.28f) * e;
+    pez.cola.color = pez.color * 0.65f;
+
+    pez.aletaIzquierda.posicionLocal = glm::vec3(-0.36f, -0.02f, 0.05f) * e;
+    pez.aletaIzquierda.escala = glm::vec3(0.06f, 0.20f, 0.32f) * e;
+    pez.aletaIzquierda.color = pez.color * 0.65f;
+
+    pez.aletaDerecha.posicionLocal = glm::vec3(0.36f, -0.02f, 0.05f) * e;
+    pez.aletaDerecha.escala = glm::vec3(0.06f, 0.20f, 0.32f) * e;
+    pez.aletaDerecha.color = pez.color * 0.65f;
+
+    pez.ojoIzquierdo.posicionLocal = glm::vec3(-0.13f, 0.12f, 0.83f) * e;
+    pez.ojoIzquierdo.escala = glm::vec3(0.045f, 0.045f, 0.045f) * e;
+    pez.ojoIzquierdo.color = glm::vec3(0.02f, 0.02f, 0.02f);
+
+    pez.ojoDerecho.posicionLocal = glm::vec3(0.13f, 0.12f, 0.83f) * e;
+    pez.ojoDerecho.escala = glm::vec3(0.045f, 0.045f, 0.045f) * e;
+    pez.ojoDerecho.color = glm::vec3(0.02f, 0.02f, 0.02f);
+}
+
+void dibujarParteEsfericaPez(const PiezaPez& pieza, const glm::mat4& modeloPadre, GLuint shaderProgram) {
+    glm::mat4 model = crearMatrizParteEsfericaPez(pieza, modeloPadre);
+
+    prepararColorEsferaPez(shaderProgram, pieza.color);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+    glBindVertexArray(VAO_esfera);
+    glDrawArrays(GL_TRIANGLES, 0, verticesEsferaSize / (8 * sizeof(float)));
+    glBindVertexArray(0);
+}
+
+void liberarEsfera() {
+    glDeleteVertexArrays(1, &VAO_esfera);
+    glDeleteBuffers(1, &VBO_esfera);
 }

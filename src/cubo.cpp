@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
 GLuint VAO_CUBO;
 GLuint VBO_CUBO;
@@ -54,20 +55,28 @@ float vertices[] = {
 
 const unsigned int verticesSize = sizeof(vertices);
 
-static glm::mat4 crearMatrizModeloPiezaAcuario(const PiezaAcuario& pieza) {
+static void prepararColorCubo(GLuint shaderProgram, const glm::vec3& color, float alpha) {
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarTextura"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarTexturaSuelo"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarArbusto"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarColorUniform"), 1);
+    glUniform1f(glGetUniformLocation(shaderProgram, "alphaUniform"), alpha);
+    glUniform3f(glGetUniformLocation(shaderProgram, "colorUniform"), color.r, color.g, color.b);
+}
+
+static glm::mat4 crearMatrizPiezaAcuario(const PiezaAcuario& pieza) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, pieza.posicion);
     model = glm::scale(model, pieza.escala);
     return model;
 }
 
-static void prepararColorAcuario(GLuint shaderProgram, const glm::vec3& color) {
-    glUniform1i(glGetUniformLocation(shaderProgram, "usarTextura"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "usarTexturaSuelo"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "usarArbusto"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "usarColorUniform"), 1);
-    glUniform1f(glGetUniformLocation(shaderProgram, "alphaUniform"), 0.25f);
-    glUniform3f(glGetUniformLocation(shaderProgram, "colorUniform"), color.r, color.g, color.b);
+static glm::mat4 crearMatrizParteCubicaPez(const PiezaPez& pieza, const glm::mat4& modeloPadre, float angulo, const glm::vec3& eje) {
+    glm::mat4 model = modeloPadre;
+    model = glm::translate(model, pieza.posicionLocal);
+    model = glm::rotate(model, glm::radians(angulo), eje);
+    model = glm::scale(model, pieza.escala);
+    return model;
 }
 
 static void dibujarCuboBase() {
@@ -77,9 +86,9 @@ static void dibujarCuboBase() {
 }
 
 static void dibujarPiezaAcuario(const PiezaAcuario& pieza, GLuint shaderProgram) {
-    glm::mat4 model = crearMatrizModeloPiezaAcuario(pieza);
+    glm::mat4 model = crearMatrizPiezaAcuario(pieza);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-    prepararColorAcuario(shaderProgram, pieza.color);
+    prepararColorCubo(shaderProgram, pieza.color, 0.25f);
     dibujarCuboBase();
 }
 
@@ -150,14 +159,6 @@ void dibujarParedesAcuario(const Acuario& acuario, GLuint shaderProgram) {
 }
 
 void dibujarSueloAcuario(const Acuario& acuario, GLuint shaderProgram) {
-    glBindVertexArray(VAO_CUBO);
-
-    glUniform1i(glGetUniformLocation(shaderProgram, "usarTextura"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "usarTexturaSuelo"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "usarArbusto"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "usarColorUniform"), 1);
-    glUniform1f(glGetUniformLocation(shaderProgram, "alphaUniform"), 1.0f);
-
     float tamX = acuario.suelo.dimensiones.x / acuario.suelo.divisionesX;
     float tamZ = acuario.suelo.dimensiones.z / acuario.suelo.divisionesZ;
     float inicioX = acuario.suelo.centro.x - acuario.suelo.dimensiones.x * 0.5f;
@@ -170,13 +171,19 @@ void dibujarSueloAcuario(const Acuario& acuario, GLuint shaderProgram) {
             model = glm::translate(model, glm::vec3(inicioX + tamX * 0.5f + x * tamX, acuario.suelo.centro.y, inicioZ + tamZ * 0.5f + z * tamZ));
             model = glm::scale(model, glm::vec3(tamX, acuario.suelo.grosor, tamZ));
 
-            glUniform3f(glGetUniformLocation(shaderProgram, "colorUniform"), color.r, color.g, color.b);
             glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            prepararColorCubo(shaderProgram, color, 1.0f);
+            dibujarCuboBase();
         }
     }
+}
 
-    glBindVertexArray(0);
+void dibujarParteCubicaPez(const PiezaPez& pieza, const glm::mat4& modeloPadre, float angulo, const glm::vec3& eje, GLuint shaderProgram) {
+    glm::mat4 model = crearMatrizParteCubicaPez(pieza, modeloPadre, angulo, eje);
+
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    prepararColorCubo(shaderProgram, pieza.color, 1.0f);
+    dibujarCuboBase();
 }
 
 void crearCubo() {
