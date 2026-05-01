@@ -1,3 +1,5 @@
+# Acuario
+
 ## Controles
 
 `1` → cámara libre  
@@ -19,5 +21,11 @@
 `U/O` → subir / bajar  
 `Flechas izquierda/derecha` → girar yaw  
 `Flechas arriba/abajo` → girar pitch  
+
+### Iluminación
+
+`T` → encender/apagar focos superiores  
+`B` → encender/apagar focos inferiores  
+`G` → encender/apagar todos los focos  
 
 `ESC` → salir

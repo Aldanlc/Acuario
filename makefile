@@ -11,7 +11,7 @@ OBJ_DIR = obj
 
 TARGET = acuario
 
-CPP_SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/render.cpp $(SRC_DIR)/input.cpp $(SRC_DIR)/cubo.cpp $(SRC_DIR)/acuario.cpp $(SRC_DIR)/esfera.cpp $(SRC_DIR)/camaras.cpp $(SRC_DIR)/tiempo.cpp $(SRC_DIR)/pez.cpp $(SRC_DIR)/pezJugador.cpp
+CPP_SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/render.cpp $(SRC_DIR)/input.cpp $(SRC_DIR)/cubo.cpp $(SRC_DIR)/acuario.cpp $(SRC_DIR)/esfera.cpp $(SRC_DIR)/camaras.cpp $(SRC_DIR)/tiempo.cpp $(SRC_DIR)/pez.cpp $(SRC_DIR)/pezJugador.cpp $(SRC_DIR)/luces.cpp
 C_SOURCES = $(SRC_DIR)/glad.c
 
 CPP_OBJECTS = $(CPP_SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)

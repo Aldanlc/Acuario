@@ -7,6 +7,10 @@ static bool teclaPresionada(GLFWwindow* window, int tecla) {
     return glfwGetKey(window, tecla) == GLFW_PRESS;
 }
 
+static bool teclaSoltada(GLFWwindow* window, int tecla) {
+    return glfwGetKey(window, tecla) == GLFW_RELEASE;
+}
+
 static void limitarValor(float& valor, float minimo, float maximo) {
     if (valor < minimo) {
         valor = minimo;
@@ -139,6 +143,35 @@ static void procesarMovimientoPezJugador(GLFWwindow* window, PezJugador& pezJuga
     moverPezJugador(pezJugador, acuario, avance, subida, deltaTime);
 }
 
+static void procesarLuces(GLFWwindow* window, EstadoEntrada& estado, Acuario& acuario) {
+    if (teclaPresionada(window, GLFW_KEY_T) && !estado.teclaFocosSuperioresPulsada) {
+        alternarFocosSuperiores(acuario);
+        estado.teclaFocosSuperioresPulsada = true;
+    }
+
+    if (teclaSoltada(window, GLFW_KEY_T)) {
+        estado.teclaFocosSuperioresPulsada = false;
+    }
+
+    if (teclaPresionada(window, GLFW_KEY_B) && !estado.teclaFocosInferioresPulsada) {
+        alternarFocosInferiores(acuario);
+        estado.teclaFocosInferioresPulsada = true;
+    }
+
+    if (teclaSoltada(window, GLFW_KEY_B)) {
+        estado.teclaFocosInferioresPulsada = false;
+    }
+
+    if (teclaPresionada(window, GLFW_KEY_G) && !estado.teclaTodosFocosPulsada) {
+        alternarTodosLosFocos(acuario);
+        estado.teclaTodosFocosPulsada = true;
+    }
+
+    if (teclaSoltada(window, GLFW_KEY_G)) {
+        estado.teclaTodosFocosPulsada = false;
+    }
+}
+
 void inicializarEstadoEntrada(EstadoEntrada& estado) {
     estado.modoCamara = 2;
 
@@ -146,15 +179,15 @@ void inicializarEstadoEntrada(EstadoEntrada& estado) {
     estado.yawCamaraLibre = -90.0f;
     estado.pitchCamaraLibre = -8.0f;
 
-    estado.luzEncendidaFoco = true;
-    estado.teclaIPulsada = false;
-    estado.luzEncendidaBrazo = true;
-    estado.teclaTPulsada = false;
+    estado.teclaFocosSuperioresPulsada = false;
+    estado.teclaFocosInferioresPulsada = false;
+    estado.teclaTodosFocosPulsada = false;
 }
 
-void processInput(GLFWwindow* window, EstadoEntrada& estado, PezJugador& pezJugador, const Acuario& acuario, float deltaTime) {
+void processInput(GLFWwindow* window, EstadoEntrada& estado, PezJugador& pezJugador, Acuario& acuario, float deltaTime) {
     procesarSalida(window);
     procesarCamaras(window, estado);
     procesarMovimientoCamaraLibre(window, estado, deltaTime);
     procesarMovimientoPezJugador(window, pezJugador, acuario, deltaTime);
+    procesarLuces(window, estado, acuario);
 }

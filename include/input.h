@@ -15,13 +15,12 @@ struct EstadoEntrada {
     float yawCamaraLibre;
     float pitchCamaraLibre;
 
-    bool luzEncendidaFoco;
-    bool teclaIPulsada;
-    bool luzEncendidaBrazo;
-    bool teclaTPulsada;
+    bool teclaFocosSuperioresPulsada;
+    bool teclaFocosInferioresPulsada;
+    bool teclaTodosFocosPulsada;
 };
 
 void inicializarEstadoEntrada(EstadoEntrada& estado);
-void processInput(GLFWwindow* window, EstadoEntrada& estado, PezJugador& pezJugador, const Acuario& acuario, float deltaTime);
+void processInput(GLFWwindow* window, EstadoEntrada& estado, PezJugador& pezJugador, Acuario& acuario, float deltaTime);
 
 #endif

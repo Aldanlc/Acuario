@@ -7,6 +7,7 @@
 #include "cubo.h"
 #include "esfera.h"
 #include "camaras.h"
+#include "luces.h"
 #include "pez.h"
 #include "pezJugador.h"
 
@@ -75,6 +76,7 @@ void renderizarFrame(const Acuario& acuario, const Pez peces[], int numeroPeces,
 
     DatosCamara camara = calcularCamaraAcuario(acuario, estado, pezJugador);
     configurarCamaraShader(camara, recursos.shaderProgram, projection);
+    configurarLucesAcuario(acuario, recursos.shaderProgram);
 
     dibujarSueloAcuario(acuario, recursos.shaderProgram);
     dibujarPeces(peces, numeroPeces, recursos.shaderProgram);
@@ -83,6 +85,7 @@ void renderizarFrame(const Acuario& acuario, const Pez peces[], int numeroPeces,
         dibujarPezJugador(pezJugador, recursos.shaderProgram);
     }
 
+    dibujarFocosAcuario(acuario, recursos.shaderProgram);
     dibujarParedesAcuario(acuario, recursos.shaderProgram);
 }
 
