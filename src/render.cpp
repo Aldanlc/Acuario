@@ -71,7 +71,7 @@ void renderizarFrame(const Acuario& acuario, const EstadoEntrada& estado, const 
 
     glUseProgram(recursos.shaderProgram);
 
-    DatosCamara camara = calcularCamaraAcuario(acuario, estado.modoCamara);
+    DatosCamara camara = calcularCamaraAcuario(acuario, estado);
     configurarCamaraShader(camara, recursos.shaderProgram, projection);
 
     dibujarAcuario(acuario, recursos.shaderProgram);

@@ -8,7 +8,7 @@ void inicializarAcuario(Acuario& acuario) {
 void inicializarAcuario(Acuario& acuario, const glm::vec3& centro, const glm::vec3& dimensiones) {
     acuario.centro = centro;
     acuario.dimensiones = dimensiones;
-    acuario.grosorCristal = 0.12f;
+    acuario.grosorCristal = 0.04f;
 
     glm::vec3 mitad = dimensiones * 0.5f;
 

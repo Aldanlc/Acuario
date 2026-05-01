@@ -3,23 +3,35 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-DatosCamara calcularCamaraAcuario(const Acuario& acuario, int modoCamara) {
+static glm::vec3 calcularFrenteCamara(float yaw, float pitch) {
+    glm::vec3 frente;
+
+    frente.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    frente.y = sin(glm::radians(pitch));
+    frente.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+    return glm::normalize(frente);
+}
+
+DatosCamara calcularCamaraAcuario(const Acuario& acuario, const EstadoEntrada& estado) {
     DatosCamara camara;
 
-    if (modoCamara == 1) {
-        camara.camPos = acuario.centro + glm::vec3(0.0f, acuario.dimensiones.y * 0.45f, acuario.dimensiones.z * 2.0f);
-        camara.camTarget = acuario.centro;
+    if (estado.modoCamara == 1) {
+        camara.camPos = estado.posicionCamaraLibre;
+        camara.frente = calcularFrenteCamara(estado.yawCamaraLibre, estado.pitchCamaraLibre);
+        camara.camTarget = camara.camPos + camara.frente;
     }
-    else if (modoCamara == 2) {
+    else if (estado.modoCamara == 2) {
         camara.camPos = acuario.centro + glm::vec3(acuario.dimensiones.x * 1.25f, acuario.dimensiones.y * 0.45f, acuario.dimensiones.z * 1.25f);
         camara.camTarget = acuario.centro;
+        camara.frente = glm::normalize(camara.camTarget - camara.camPos);
     }
     else {
         camara.camPos = acuario.centro + glm::vec3(0.0f, acuario.dimensiones.y * 1.6f, acuario.dimensiones.z * 0.15f);
         camara.camTarget = acuario.centro;
+        camara.frente = glm::normalize(camara.camTarget - camara.camPos);
     }
 
-    camara.frente = glm::normalize(camara.camTarget - camara.camPos);
     camara.view = glm::lookAt(camara.camPos, camara.camTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 
     return camara;

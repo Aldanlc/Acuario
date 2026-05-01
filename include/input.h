@@ -3,9 +3,15 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 struct EstadoEntrada {
     int modoCamara;
+
+    glm::vec3 posicionCamaraLibre;
+    float yawCamaraLibre;
+    float pitchCamaraLibre;
+
     bool luzEncendidaFoco;
     bool teclaIPulsada;
     bool luzEncendidaBrazo;
