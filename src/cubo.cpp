@@ -66,6 +66,7 @@ static void prepararColorAcuario(GLuint shaderProgram, const glm::vec3& color) {
     glUniform1i(glGetUniformLocation(shaderProgram, "usarTexturaSuelo"), 0);
     glUniform1i(glGetUniformLocation(shaderProgram, "usarArbusto"), 0);
     glUniform1i(glGetUniformLocation(shaderProgram, "usarColorUniform"), 1);
+    glUniform1f(glGetUniformLocation(shaderProgram, "alphaUniform"), 0.25f);
     glUniform3f(glGetUniformLocation(shaderProgram, "colorUniform"), color.r, color.g, color.b);
 }
 
@@ -155,6 +156,7 @@ void dibujarSueloAcuario(const Acuario& acuario, GLuint shaderProgram) {
     glUniform1i(glGetUniformLocation(shaderProgram, "usarTexturaSuelo"), 0);
     glUniform1i(glGetUniformLocation(shaderProgram, "usarArbusto"), 0);
     glUniform1i(glGetUniformLocation(shaderProgram, "usarColorUniform"), 1);
+    glUniform1f(glGetUniformLocation(shaderProgram, "alphaUniform"), 1.0f);
 
     float tamX = acuario.suelo.dimensiones.x / acuario.suelo.divisionesX;
     float tamZ = acuario.suelo.dimensiones.z / acuario.suelo.divisionesZ;

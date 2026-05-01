@@ -20,8 +20,8 @@ void inicializarAcuario(Acuario& acuario, const glm::vec3& centro, const glm::ve
 }
 
 void dibujarAcuario(const Acuario& acuario, GLuint shaderProgram) {
-    dibujarParedesAcuario(acuario, shaderProgram);
     dibujarSueloAcuario(acuario, shaderProgram);
+    dibujarParedesAcuario(acuario, shaderProgram);
 }
 
 glm::vec3 obtenerLimiteMinAcuario(const Acuario& acuario) {
