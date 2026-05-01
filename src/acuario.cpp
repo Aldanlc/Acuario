@@ -2,7 +2,7 @@
 #include "cubo.h"
 
 void inicializarAcuario(Acuario& acuario) {
-    inicializarAcuario(acuario, glm::vec3(0.0f, 1.5f, 0.0f), glm::vec3(10.0f, 5.0f, 6.0f));
+    inicializarAcuario(acuario, glm::vec3(0.0f, 2.5f, 0.0f), glm::vec3(16.0f, 8.0f, 10.0f));
 }
 
 void inicializarAcuario(Acuario& acuario, const glm::vec3& centro, const glm::vec3& dimensiones) {

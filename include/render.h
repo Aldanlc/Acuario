@@ -8,6 +8,7 @@
 #include "input.h"
 #include "acuario.h"
 #include "pez.h"
+#include "pezJugador.h"
 
 struct RecursosRender {
     GLuint shaderProgram;
@@ -18,7 +19,7 @@ void openGlInit();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 glm::mat4 obtenerProjection();
 void cargarRecursos(RecursosRender& recursos);
-void renderizarFrame(const Acuario& acuario, const Pez peces[], int numeroPeces, const EstadoEntrada& estado, const RecursosRender& recursos);
+void renderizarFrame(const Acuario& acuario, const Pez peces[], int numeroPeces, const PezJugador& pezJugador, const EstadoEntrada& estado, const RecursosRender& recursos);
 void liberar(const RecursosRender& recursos);
 
 #endif

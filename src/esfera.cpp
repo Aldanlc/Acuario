@@ -3612,27 +3612,6 @@ float vertices_esfera[] =
 GLuint VAO_esfera;
 GLuint VBO_esfera;
 
-void crearEsfera() {
-    glGenVertexArrays(1, &VAO_esfera);
-    glGenBuffers(1, &VBO_esfera);
-
-    glBindVertexArray(VAO_esfera);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_esfera);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_esfera), vertices_esfera, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-}
-
 const unsigned int verticesEsferaSize = sizeof(vertices_esfera);
 
 static void prepararColorEsferaPez(GLuint shaderProgram, const glm::vec3& color) {

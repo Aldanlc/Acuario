@@ -5,6 +5,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include "acuario.h"
+#include "pezJugador.h"
+
 struct EstadoEntrada {
     int modoCamara;
 
@@ -19,6 +22,6 @@ struct EstadoEntrada {
 };
 
 void inicializarEstadoEntrada(EstadoEntrada& estado);
-void processInput(GLFWwindow* window, EstadoEntrada& estado, float deltaTime);
+void processInput(GLFWwindow* window, EstadoEntrada& estado, PezJugador& pezJugador, const Acuario& acuario, float deltaTime);
 
 #endif

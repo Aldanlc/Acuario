@@ -3,8 +3,10 @@
 
 #include <glm/glm.hpp>
 #include <glad/glad.h>
+
 #include "acuario.h"
 #include "input.h"
+#include "pezJugador.h"
 
 struct DatosCamara {
     glm::vec3 camPos;
@@ -13,7 +15,7 @@ struct DatosCamara {
     glm::mat4 view;
 };
 
-DatosCamara calcularCamaraAcuario(const Acuario& acuario, const EstadoEntrada& estado);
+DatosCamara calcularCamaraAcuario(const Acuario& acuario, const EstadoEntrada& estado, const PezJugador& pezJugador);
 void configurarCamaraShader(const DatosCamara& camara, GLuint shaderProgram, const glm::mat4& projection);
 
 #endif

@@ -1,5 +1,6 @@
 #include "camaras.h"
 
+#include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -13,7 +14,21 @@ static glm::vec3 calcularFrenteCamara(float yaw, float pitch) {
     return glm::normalize(frente);
 }
 
-DatosCamara calcularCamaraAcuario(const Acuario& acuario, const EstadoEntrada& estado) {
+static DatosCamara calcularCamaraPezJugador(const PezJugador& pezJugador) {
+    DatosCamara camara;
+
+    glm::vec3 frente = pezJugador.pez.direccion;
+    glm::vec3 alturaOjos = glm::vec3(0.0f, pezJugador.pez.escala * 0.18f, 0.0f);
+
+    camara.camPos = pezJugador.pez.posicion + frente * pezJugador.pez.escala * 0.45f + alturaOjos;
+    camara.frente = frente;
+    camara.camTarget = camara.camPos + camara.frente;
+    camara.view = glm::lookAt(camara.camPos, camara.camTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    return camara;
+}
+
+DatosCamara calcularCamaraAcuario(const Acuario& acuario, const EstadoEntrada& estado, const PezJugador& pezJugador) {
     DatosCamara camara;
 
     if (estado.modoCamara == 1) {
@@ -26,10 +41,13 @@ DatosCamara calcularCamaraAcuario(const Acuario& acuario, const EstadoEntrada& e
         camara.camTarget = acuario.centro;
         camara.frente = glm::normalize(camara.camTarget - camara.camPos);
     }
-    else {
+    else if (estado.modoCamara == 3) {
         camara.camPos = acuario.centro + glm::vec3(0.0f, acuario.dimensiones.y * 1.6f, acuario.dimensiones.z * 0.15f);
         camara.camTarget = acuario.centro;
         camara.frente = glm::normalize(camara.camTarget - camara.camPos);
+    }
+    else {
+        return calcularCamaraPezJugador(pezJugador);
     }
 
     camara.view = glm::lookAt(camara.camPos, camara.camTarget, glm::vec3(0.0f, 1.0f, 0.0f));

@@ -8,10 +8,16 @@
 
 static glm::mat4 crearMatrizModeloPez(const Pez& pez) {
     glm::mat4 model = glm::mat4(1.0f);
-    float yaw = atan2(pez.direccion.x, pez.direccion.z);
+
+    glm::vec3 direccion = glm::normalize(pez.direccion);
+
+    float yaw = atan2(direccion.x, direccion.z);
+    float longitudHorizontal = sqrt(direccion.x * direccion.x + direccion.z * direccion.z);
+    float pitch = atan2(direccion.y, longitudHorizontal);
 
     model = glm::translate(model, pez.posicion);
     model = glm::rotate(model, yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, -pitch, glm::vec3(1.0f, 0.0f, 0.0f));
 
     return model;
 }

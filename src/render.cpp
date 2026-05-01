@@ -8,6 +8,7 @@
 #include "esfera.h"
 #include "camaras.h"
 #include "pez.h"
+#include "pezJugador.h"
 
 static glm::mat4 projection;
 
@@ -67,16 +68,21 @@ void cargarRecursos(RecursosRender& recursos) {
     recursos.shaderProgram = setShaders("shaders/shader.vert", "shaders/shader.frag");
 }
 
-void renderizarFrame(const Acuario& acuario, const Pez peces[], int numeroPeces, const EstadoEntrada& estado, const RecursosRender& recursos) {
+void renderizarFrame(const Acuario& acuario, const Pez peces[], int numeroPeces, const PezJugador& pezJugador, const EstadoEntrada& estado, const RecursosRender& recursos) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(recursos.shaderProgram);
 
-    DatosCamara camara = calcularCamaraAcuario(acuario, estado);
+    DatosCamara camara = calcularCamaraAcuario(acuario, estado, pezJugador);
     configurarCamaraShader(camara, recursos.shaderProgram, projection);
 
     dibujarSueloAcuario(acuario, recursos.shaderProgram);
     dibujarPeces(peces, numeroPeces, recursos.shaderProgram);
+
+    if (estado.modoCamara != 4) {
+        dibujarPezJugador(pezJugador, recursos.shaderProgram);
+    }
+
     dibujarParedesAcuario(acuario, recursos.shaderProgram);
 }
 
