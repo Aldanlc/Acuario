@@ -39,9 +39,9 @@ vec3 calcularSpotlight(vec3 norm, vec3 fragPos, vec3 viewDirection, Foco foco, v
     vec3 specular = 0.25 * spec * foco.color;
 
     float distancia = length(foco.posicion - fragPos);
-    float atenuacion = 1.0 / (1.0 + 0.045 * distancia + 0.012 * distancia * distancia);
+    float atenuacion = 1.0 / (1.0 + 0.018 * distancia + 0.0025 * distancia * distancia);
 
-    return (diffuse + specular) * intensidadFoco * atenuacion;
+    return (diffuse * 1.10 + specular * 0.75) * intensidadFoco * atenuacion;
 }
 
 void main() {
@@ -51,7 +51,7 @@ void main() {
     vec3 norm = normalize(Normal);
     vec3 viewDirection = normalize(viewPos - FragPos);
 
-    vec3 resultado = colorBase * 0.22;
+    vec3 resultado = colorBase * 0.30;
 
     for (int i = 0; i < numeroFocos && i < MAX_FOCOS; i++) {
         if (focos[i].encendido == 1) {

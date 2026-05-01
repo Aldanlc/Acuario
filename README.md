@@ -9,7 +9,7 @@
 
 ### Pez jugador
 
-`W/S` → avanzar / retroceder  
+`W` → acelerar hacia delante  
 `A/D` → girar izquierda / derecha  
 `SPACE` → subir  
 `C` → bajar  

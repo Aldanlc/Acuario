@@ -19,7 +19,7 @@ const unsigned int SCR_HEIGHT = 1000;
 RecursosRender recursos;
 Acuario acuario;
 
-const int NUM_PECES = 3;
+const int NUM_PECES = 10;
 Pez peces[NUM_PECES];
 
 PezJugador pezJugador;

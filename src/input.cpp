@@ -110,17 +110,12 @@ static void procesarMovimientoCamaraLibre(GLFWwindow* window, EstadoEntrada& est
 }
 
 static void procesarMovimientoPezJugador(GLFWwindow* window, PezJugador& pezJugador, const Acuario& acuario, float deltaTime) {
-    float avance = 0.0f;
+    float acelerar = 0.0f;
     float subida = 0.0f;
     float giroYaw = 0.0f;
-    float giroPitch = 0.0f;
 
     if (teclaPresionada(window, GLFW_KEY_W)) {
-        avance += 1.0f;
-    }
-
-    if (teclaPresionada(window, GLFW_KEY_S)) {
-        avance -= 1.0f;
+        acelerar = 1.0f;
     }
 
     if (teclaPresionada(window, GLFW_KEY_A)) {
@@ -139,8 +134,8 @@ static void procesarMovimientoPezJugador(GLFWwindow* window, PezJugador& pezJuga
         subida -= 1.0f;
     }
 
-    girarPezJugador(pezJugador, giroYaw, giroPitch, deltaTime);
-    moverPezJugador(pezJugador, acuario, avance, subida, deltaTime);
+    girarPezJugador(pezJugador, giroYaw, deltaTime);
+    moverPezJugador(pezJugador, acuario, acelerar, subida, deltaTime);
 }
 
 static void procesarLuces(GLFWwindow* window, EstadoEntrada& estado, Acuario& acuario) {

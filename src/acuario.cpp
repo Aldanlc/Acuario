@@ -27,21 +27,21 @@ static void inicializarFocosAcuario(Acuario& acuario) {
         acuario.focos[i].direccion = glm::normalize(acuario.centro - posiciones[i]);
         acuario.focos[i].superior = i < 4;
         acuario.focos[i].encendido = true;
-        acuario.focos[i].cutOff = 18.0f;
-        acuario.focos[i].outerCutOff = 28.0f;
+        acuario.focos[i].cutOff = 30.0f;
+        acuario.focos[i].outerCutOff = 50.0f;
         acuario.focos[i].colorApagado = glm::vec3(0.12f, 0.12f, 0.14f);
 
         if (acuario.focos[i].superior) {
-            acuario.focos[i].colorEncendido = glm::vec3(1.20f, 1.50f, 1.70f);
+            acuario.focos[i].colorEncendido = glm::vec3(1.35f, 1.60f, 1.80f);
         }
         else {
-            acuario.focos[i].colorEncendido = glm::vec3(0.25f, 0.55f, 1.20f);
+            acuario.focos[i].colorEncendido = glm::vec3(0.45f, 0.85f, 1.45f);
         }
     }
 }
 
 void inicializarAcuario(Acuario& acuario) {
-    inicializarAcuario(acuario, glm::vec3(0.0f, 2.5f, 0.0f), glm::vec3(16.0f, 8.0f, 10.0f));
+    inicializarAcuario(acuario, glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(32.0f, 14.0f, 20.0f));
 }
 
 void inicializarAcuario(Acuario& acuario, const glm::vec3& centro, const glm::vec3& dimensiones) {
