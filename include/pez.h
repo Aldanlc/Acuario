@@ -9,6 +9,7 @@ struct PiezaPez {
     glm::vec3 posicionLocal;
     glm::vec3 escala;
     glm::vec3 color;
+    GLuint textura_pez;
 };
 
 struct Pez {

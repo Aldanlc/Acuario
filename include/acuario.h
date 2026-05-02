@@ -10,6 +10,7 @@ struct PiezaAcuario {
     glm::vec3 posicion;
     glm::vec3 escala;
     glm::vec3 color;
+    GLuint textura_acuario;
 };
 
 struct SueloAcuario {
@@ -18,6 +19,7 @@ struct SueloAcuario {
     int divisionesX;
     int divisionesZ;
     float grosor;
+    GLuint textura_suelo;
 };
 
 struct FocoAcuario {
