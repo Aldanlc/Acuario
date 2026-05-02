@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <cmath>
+#include "textura.h"
 
 
 float vertices_esfera[] = 
@@ -3691,6 +3692,8 @@ void dibujarParteEsfericaPez(const PiezaPez& pieza, const glm::mat4& modeloPadre
     prepararColorEsferaPez(shaderProgram, pieza.color);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
+	activarTextura(shaderProgram, pieza.textura_pez);
+	
     glBindVertexArray(VAO_esfera);
     glDrawArrays(GL_TRIANGLES, 0, verticesEsferaSize / (8 * sizeof(float)));
     glBindVertexArray(0);

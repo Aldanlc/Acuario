@@ -12,6 +12,10 @@
 
 struct RecursosRender {
     GLuint shaderProgram;
+
+    GLuint texturaSuelo;
+    GLuint texturaAcuario;
+    GLuint texturaPez;
 };
 
 GLFWwindow* inicializarVentana(unsigned int ancho, unsigned int alto, const char* titulo);
@@ -20,6 +24,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 glm::mat4 obtenerProjection();
 void cargarRecursos(RecursosRender& recursos);
 void renderizarFrame(const Acuario& acuario, const Pez peces[], int numeroPeces, const PezJugador& pezJugador, const EstadoEntrada& estado, const RecursosRender& recursos);
-void liberar(const RecursosRender& recursos);
+void liberar(RecursosRender& recursos);
+void cargarTexturasEscena(RecursosRender& recursos, Acuario& acuario, Pez peces[], int numeroPeces, PezJugador& pezJugador);
 
 #endif

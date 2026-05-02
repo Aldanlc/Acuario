@@ -1,0 +1,166 @@
+#version 330 core
+// 🔴 Indica la versión de GLSL. OpenGL 3.3 usa GLSL 330 core.
+
+struct Foco {
+    // 🔴 Estructura que representa cada foco del acuario.
+
+    int encendido;
+    // 🔴 Indica si el foco está encendido o apagado. 1 = encendido, 0 = apagado.
+
+    vec3 posicion;
+    // 🔴 Posición del foco en coordenadas del mundo.
+
+    vec3 direccion;
+    // 🔴 Dirección hacia la que apunta el foco.
+
+    vec3 color;
+    // 🔴 Color/intensidad de la luz del foco.
+
+    float cutOff;
+    // 🔴 Ángulo interno del foco. Dentro de este cono la luz tiene máxima intensidad.
+
+    float outerCutOff;
+    // 🔴 Ángulo externo del foco. Entre cutOff y outerCutOff la luz se suaviza.
+};
+
+#define MAX_FOCOS 8
+// 🔴 Número máximo de focos que puede usar el shader.
+
+out vec4 FragColor;
+// 🔴 Color final que saldrá del fragment shader hacia la pantalla.
+
+in vec3 FragPos;
+// 🔴 Posición del fragmento en coordenadas del mundo. Viene del vertex shader.
+
+in vec3 Normal;
+// 🔴 Normal interpolada del fragmento. Se usa para calcular iluminación.
+
+in vec2 TexCoord;
+// 🔴 Coordenadas de textura interpoladas. Sirven para leer la textura en este fragmento.
+
+uniform vec3 colorUniform;
+// 🔴 Color base/material del objeto. Lo seguimos usando para conservar el color de peces, suelo, paredes, etc.
+
+uniform float alphaUniform;
+// 🔴 Transparencia del objeto. 1.0 = opaco, 0.0 = transparente.
+
+uniform vec3 viewPos;
+// 🔴 Posición de la cámara. Se usa para calcular la componente especular.
+
+uniform sampler2D textura1;
+// 🔴 Textura activa del objeto. Lee de la unidad que le indicamos desde C++ con glUniform1i(..., 0).
+
+uniform int numeroFocos;
+// 🔴 Número real de focos que se están usando.
+
+uniform Foco focos[MAX_FOCOS];
+// 🔴 Array con los focos del acuario.
+
+vec3 calcularSpotlight(vec3 norm, vec3 fragPos, vec3 viewDirection, Foco foco, vec3 colorBaseRGB) {
+    // 🔴 Función que calcula la iluminación de un foco tipo spotlight sobre un fragmento.
+
+    vec3 lightDirection = normalize(foco.posicion - fragPos);
+    // 🔴 Vector desde el fragmento hacia la luz.
+
+    float theta = dot(lightDirection, normalize(-foco.direccion));
+    // 🔴 Calcula si el fragmento está dentro del cono del foco.
+    // 🔴 Compara la dirección fragmento-luz con la dirección hacia la que apunta el foco.
+
+    float epsilon = foco.cutOff - foco.outerCutOff;
+    // 🔴 Diferencia entre el cono interno y el cono externo.
+    // 🔴 Sirve para suavizar el borde del foco.
+
+    float intensidadFoco = clamp((theta - foco.outerCutOff) / epsilon, 0.0, 1.0);
+    // 🔴 Intensidad del foco en este fragmento.
+    // 🔴 Vale 1 dentro del cono interno, 0 fuera del cono externo, y se suaviza entre ambos.
+
+    float diff = max(dot(norm, lightDirection), 0.0);
+    // 🔴 Componente difusa de Phong/Lambert.
+    // 🔴 Cuanto más alineada esté la normal con la luz, más iluminado estará el fragmento.
+
+    vec3 diffuse = diff * foco.color * colorBaseRGB;
+    // 🔴 Luz difusa final.
+    // 🔴 Se multiplica por el color del foco y por el color base del objeto/textura.
+
+    vec3 reflectDirection = reflect(-lightDirection, norm);
+    // 🔴 Dirección de reflexión de la luz sobre la superficie.
+    // 🔴 Se usa para calcular el brillo especular.
+
+    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32.0);
+    // 🔴 Componente especular.
+    // 🔴 Cuanto más alineada esté la cámara con la reflexión, más brillo aparece.
+    // 🔴 El 32.0 controla lo concentrado que es el brillo.
+
+    vec3 specular = 0.25 * spec * foco.color;
+    // 🔴 Color especular final.
+    // 🔴 No se multiplica por la textura para que el brillo sea más parecido a luz reflejada.
+
+    float distancia = length(foco.posicion - fragPos);
+    // 🔴 Distancia entre el foco y el fragmento.
+
+    float atenuacion = 1.0 / (1.0 + 0.018 * distancia + 0.0025 * distancia * distancia);
+    // 🔴 Atenuación de la luz con la distancia.
+    // 🔴 Cuanto más lejos esté el fragmento del foco, menos luz recibe.
+
+    return (diffuse * 1.10 + specular * 0.75) * intensidadFoco * atenuacion;
+    // 🔴 Devuelve la iluminación total aportada por este foco.
+    // 🔴 Incluye difusa, especular, cono del foco y atenuación por distancia.
+}
+
+void main() {
+    // 🔴 Función principal del fragment shader. Se ejecuta una vez por cada fragmento.
+
+    vec4 texColor = texture(textura1, TexCoord);
+    // 🔴 Lee la textura usando las coordenadas UV interpoladas.
+    // 🔴 Devuelve un vec4: rojo, verde, azul y alpha.
+
+    float alphaMaterial = alphaUniform > 0.0 ? alphaUniform : 1.0;
+    // 🔴 Si alphaUniform tiene un valor mayor que 0, se usa.
+    // 🔴 Si no se ha enviado alphaUniform, se usa 1.0 para que el objeto sea opaco por defecto.
+
+    float alphaFinal = texColor.a * alphaMaterial;
+    // 🔴 Alpha final del fragmento.
+    // 🔴 Combina el alpha de la textura con el alpha del material.
+
+    if (alphaFinal < 0.01) {
+        discard;
+    }
+    // 🔴 Si el fragmento es prácticamente transparente, se descarta.
+    // 🔴 Útil para texturas PNG con zonas totalmente transparentes.
+
+    vec3 colorBase = texColor.rgb * colorUniform;
+    // 🔴 Color base del fragmento.
+    // 🔴 La textura da el detalle visual.
+    // 🔴 colorUniform conserva el color propio del objeto.
+    // 🔴 Para peces: textura de escamas * color del pez.
+    // 🔴 Para suelo: textura de arena * color del suelo.
+    // 🔴 Para paredes: textura de cristal * color azulado/transparente.
+
+    vec3 norm = normalize(Normal);
+    // 🔴 Normaliza la normal para que tenga longitud 1.
+    // 🔴 Necesario para que los cálculos de iluminación sean correctos.
+
+    vec3 viewDirection = normalize(viewPos - FragPos);
+    // 🔴 Vector desde el fragmento hacia la cámara.
+    // 🔴 Se usa para calcular la componente especular.
+
+    vec3 resultado = colorBase * 0.30;
+    // 🔴 Componente ambiental.
+    // 🔴 Hace que el objeto no quede completamente negro aunque no le llegue luz directa.
+
+    for (int i = 0; i < numeroFocos && i < MAX_FOCOS; i++) {
+        // 🔴 Recorre todos los focos activos de la escena.
+
+        if (focos[i].encendido == 1) {
+            // 🔴 Solo calcula iluminación si el foco está encendido.
+
+            resultado += calcularSpotlight(norm, FragPos, viewDirection, focos[i], colorBase);
+            // 🔴 Suma la luz aportada por este foco al resultado final.
+        }
+    }
+
+    FragColor = vec4(resultado, alphaFinal);
+    // 🔴 Color final del fragmento.
+    // 🔴 RGB = textura multiplicada por color e iluminación.
+    // 🔴 Alpha = transparencia final.
+}

@@ -58,3 +58,24 @@ GLuint cargarTextura(const char* nombre_textura) {
 
     return textura;
 }
+
+void eliminarTextura(GLuint& textura) {
+    if (textura != 0) {
+        glDeleteTextures(1, &textura);
+        textura = 0;
+    }
+}
+
+void activarTextura(GLuint shaderProgram, GLuint textura) {
+    if (textura == 0) {
+        glUniform1i(glGetUniformLocation(shaderProgram, "usarTextura"), GL_FALSE);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        return;
+    }
+
+    glUniform1i(glGetUniformLocation(shaderProgram, "usarTextura"), GL_TRUE);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textura);
+    glUniform1i(glGetUniformLocation(shaderProgram, "textura1"), 0);
+}

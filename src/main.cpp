@@ -39,6 +39,7 @@ int main() {
     inicializarAcuario(acuario);
     inicializarPeces(peces, NUM_PECES, acuario);
     inicializarPezJugador(pezJugador, acuario);
+    cargarTexturasEscena(recursos,acuario,peces,NUM_PECES,pezJugador);
 
     float ultimoFrame = glfwGetTime();
 

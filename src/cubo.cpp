@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include "textura.h"
 
 GLuint VAO_CUBO;
 GLuint VBO_CUBO;
@@ -88,7 +89,8 @@ static void dibujarCuboBase() {
 static void dibujarPiezaAcuario(const PiezaAcuario& pieza, GLuint shaderProgram) {
     glm::mat4 model = crearMatrizPiezaAcuario(pieza);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-    prepararColorCubo(shaderProgram, pieza.color, 0.25f);
+    prepararColorCubo(shaderProgram, pieza.color, 0.06f);
+    activarTextura(shaderProgram, pieza.textura_acuario);
     dibujarCuboBase();
 }
 
@@ -122,7 +124,7 @@ void crearAcuario(Acuario& acuario) {
     float zMin = acuario.centro.z - fondo * 0.5f;
     float zMax = acuario.centro.z + fondo * 0.5f;
 
-    glm::vec3 colorCristal = glm::vec3(0.20f, 0.65f, 0.90f);
+    glm::vec3 colorCristal = glm::vec3(0.75f, 0.95f, 1.0f);
 
     acuario.base.posicion = glm::vec3(acuario.centro.x, yMin + g * 0.5f, acuario.centro.z);
     acuario.base.escala = glm::vec3(ancho, g, fondo);
@@ -166,13 +168,14 @@ void dibujarSueloAcuario(const Acuario& acuario, GLuint shaderProgram) {
 
     for (int x = 0; x < acuario.suelo.divisionesX; x++) {
         for (int z = 0; z < acuario.suelo.divisionesZ; z++) {
-            glm::vec3 color = ((x + z) % 2 == 0) ? glm::vec3(0.70f, 0.55f, 0.30f) : glm::vec3(0.58f, 0.44f, 0.24f);
+            glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(inicioX + tamX * 0.5f + x * tamX, acuario.suelo.centro.y, inicioZ + tamZ * 0.5f + z * tamZ));
             model = glm::scale(model, glm::vec3(tamX, acuario.suelo.grosor, tamZ));
 
             glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
             prepararColorCubo(shaderProgram, color, 1.0f);
+            activarTextura(shaderProgram, acuario.suelo.textura_suelo);
             dibujarCuboBase();
         }
     }
@@ -183,6 +186,7 @@ void dibujarParteCubicaPez(const PiezaPez& pieza, const glm::mat4& modeloPadre, 
 
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
     prepararColorCubo(shaderProgram, pieza.color, 1.0f);
+    activarTextura(shaderProgram, pieza.textura_pez);
     dibujarCuboBase();
 }
 

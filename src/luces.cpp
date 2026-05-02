@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "textura.h"
 
 static void enviarVector3(GLuint shaderProgram, const std::string& nombreUniform, const glm::vec3& valor) {
     glUniform3f(glGetUniformLocation(shaderProgram, nombreUniform.c_str()), valor.x, valor.y, valor.z);
@@ -61,6 +62,8 @@ void dibujarFocosAcuario(const Acuario& acuario, GLuint shaderProgram) {
         prepararColorFocoVisible(shaderProgram, color);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
+        activarTextura(shaderProgram, 0);
+        
         glBindVertexArray(VAO_esfera);
         glDrawArrays(GL_TRIANGLES, 0, verticesEsferaSize / (8 * sizeof(float)));
         glBindVertexArray(0);

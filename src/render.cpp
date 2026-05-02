@@ -10,6 +10,7 @@
 #include "luces.h"
 #include "pez.h"
 #include "pezJugador.h"
+#include "textura.h"
 
 static glm::mat4 projection;
 
@@ -86,13 +87,52 @@ void renderizarFrame(const Acuario& acuario, const Pez peces[], int numeroPeces,
     }
 
     dibujarFocosAcuario(acuario, recursos.shaderProgram);
+    glDepthMask(GL_FALSE);
     dibujarParedesAcuario(acuario, recursos.shaderProgram);
+    glDepthMask(GL_TRUE);
 }
 
-void liberar(const RecursosRender& recursos) {
+void liberar(RecursosRender& recursos) {
     liberarEsfera();
     liberarCubo();
 
+    eliminarTextura(recursos.texturaSuelo);
+    eliminarTextura(recursos.texturaAcuario);
+    eliminarTextura(recursos.texturaPez);
+
     glDeleteProgram(recursos.shaderProgram);
     glfwTerminate();
+}
+
+void cargarTexturasEscena(RecursosRender& recursos, Acuario& acuario, Pez peces[], int numeroPeces, PezJugador& pezJugador) {
+    recursos.texturaSuelo = cargarTextura("texturas/arena.png");
+    recursos.texturaAcuario = cargarTextura("texturas/acuario.png");
+    recursos.texturaPez = cargarTextura("texturas/pez.png");
+
+    acuario.suelo.textura_suelo = recursos.texturaSuelo;
+
+    acuario.base.textura_acuario = recursos.texturaAcuario;
+    acuario.techo.textura_acuario = recursos.texturaAcuario;
+    acuario.paredIzquierda.textura_acuario = recursos.texturaAcuario;
+    acuario.paredDerecha.textura_acuario = recursos.texturaAcuario;
+    acuario.paredTrasera.textura_acuario = recursos.texturaAcuario;
+    acuario.paredFrontal.textura_acuario = recursos.texturaAcuario;
+
+    for (int i = 0; i < numeroPeces; i++) {
+        peces[i].cuerpo.textura_pez = recursos.texturaPez;
+        peces[i].cabeza.textura_pez = recursos.texturaPez;
+        peces[i].cola.textura_pez = recursos.texturaPez;
+        peces[i].aletaIzquierda.textura_pez = recursos.texturaPez;
+        peces[i].aletaDerecha.textura_pez = recursos.texturaPez;
+        peces[i].ojoIzquierdo.textura_pez = 0;
+        peces[i].ojoDerecho.textura_pez = 0;
+    }
+
+    pezJugador.pez.cuerpo.textura_pez = recursos.texturaPez;
+    pezJugador.pez.cabeza.textura_pez = recursos.texturaPez;
+    pezJugador.pez.cola.textura_pez = recursos.texturaPez;
+    pezJugador.pez.aletaIzquierda.textura_pez = recursos.texturaPez;
+    pezJugador.pez.aletaDerecha.textura_pez = recursos.texturaPez;
+    pezJugador.pez.ojoIzquierdo.textura_pez = 0;
+    pezJugador.pez.ojoDerecho.textura_pez = 0;
 }
