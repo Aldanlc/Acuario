@@ -11,10 +11,12 @@ static glm::mat4 crearMatrizModeloPez(const Pez& pez) {
 
     glm::vec3 direccion = glm::normalize(pez.direccion);
 
+    // Calculamos los ángulos para orientar el pez hacia su dirección de movimiento
     float yaw = atan2(direccion.x, direccion.z);
     float longitudHorizontal = sqrt(direccion.x * direccion.x + direccion.z * direccion.z);
     float pitch = atan2(direccion.y, longitudHorizontal);
 
+    // Primero colocamos el pez en su posición y luego lo orientamos
     model = glm::translate(model, pez.posicion);
     model = glm::rotate(model, yaw, glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, -pitch, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -30,63 +32,89 @@ void inicializarPez(Pez& pez, const glm::vec3& posicion, const glm::vec3& direcc
     pez.escala = escala;
     pez.faseMovimiento = 0.0f;
 
+    // Crea las partes que forman el modelo del pez
     crearModeloPez(pez);
 }
 
 void inicializarPeces(Pez peces[], int numeroPeces, const Acuario& acuario) {
-    if (numeroPeces <= 0) {
-        return;
-    }
+    if (numeroPeces <= 0) return;
 
     glm::vec3 centro = acuario.centro;
 
-    inicializarPez(peces[0], centro + glm::vec3(-7.0f, 1.0f, -3.0f), glm::vec3(1.0f, 0.0f, 0.25f), glm::vec3(1.0f, 0.35f, 0.15f), 1.20f, 0.70f);
+    for (int i = 0; i < numeroPeces; i++) {
+        // Distribución inicial de los peces dentro del acuario
+        float x = -13.0f + (i % 5) * 6.5f;
+        float z = -8.0f + (i / 5) * 5.0f;
 
-    if (numeroPeces > 1) {
-        inicializarPez(peces[1], centro + glm::vec3(5.5f, 2.0f, -5.0f), glm::vec3(-0.8f, 0.15f, 0.5f), glm::vec3(0.15f, 0.55f, 1.0f), 0.90f, 0.55f);
+        float y;
+        // Peces más altos
+        if (i < numeroPeces / 2) {
+            y = 2.5f + (i % 3) * 1.4f;
+        }
+        // Peces más cerca del suelo
+        else {
+            y = 0.4f + ((i - numeroPeces / 2) % 3) * 0.6f;
+        }
+
+        glm::vec3 posicion = centro + glm::vec3(x, y, z);
+
+        // Dirección inicial distinta para cada pez
+        glm::vec3 direccion = glm::normalize(glm::vec3(
+            sin(i * 1.7f),
+            0.12f * sin(i * 0.8f),
+            cos(i * 2.1f)
+        ));
+
+        // Color generado con senos/cosenos para variar entre peces
+        glm::vec3 color = glm::vec3(
+            0.35f + 0.65f * fabs(sin(i * 1.3f)),
+            0.35f + 0.65f * fabs(sin(i * 2.1f)),
+            0.35f + 0.65f * fabs(cos(i * 1.6f))
+        );
+
+        float velocidad = 0.70f + 0.05f * (i % 6);
+        float escala = 0.45f + 0.05f * (i % 5);
+
+        inicializarPez(peces[i], posicion, direccion, color, velocidad, escala);
     }
+}
 
-    if (numeroPeces > 2) {
-        inicializarPez(peces[2], centro + glm::vec3(0.0f, 3.0f, 4.5f), glm::vec3(0.5f, -0.1f, -1.0f), glm::vec3(0.95f, 0.85f, 0.15f), 0.75f, 0.50f);
-    }
+static void evitarChoquesPeces(Pez peces[], int numeroPeces, float deltaTime) {
+    for (int i = 0; i < numeroPeces; i++) {
+        glm::vec3 direccionEvasion(0.0f);
 
-    if (numeroPeces > 3) {
-        inicializarPez(peces[3], centro + glm::vec3(-10.0f, 4.0f, 2.0f), glm::vec3(1.0f, 0.1f, -0.35f), glm::vec3(0.20f, 0.95f, 0.45f), 1.05f, 0.60f);
-    }
+        for (int j = 0; j < numeroPeces; j++) {
+            if (i == j) continue;
 
-    if (numeroPeces > 4) {
-        inicializarPez(peces[4], centro + glm::vec3(9.0f, 1.5f, 6.0f), glm::vec3(-1.0f, 0.0f, -0.25f), glm::vec3(1.0f, 0.25f, 0.55f), 1.35f, 0.45f);
-    }
+            glm::vec3 separacion = peces[i].posicion - peces[j].posicion;
+            float distancia = glm::length(separacion);
+            float distanciaMinima = peces[i].radioColision + peces[j].radioColision + 0.6f;
 
-    if (numeroPeces > 5) {
-        inicializarPez(peces[5], centro + glm::vec3(-3.0f, 5.0f, -7.0f), glm::vec3(0.35f, -0.1f, 1.0f), glm::vec3(0.55f, 0.25f, 1.0f), 0.80f, 0.75f);
-    }
+            // Si dos peces están demasiado cerca, se calcula una dirección de evasión
+            if (distancia > 0.001f && distancia < distanciaMinima) {
+                direccionEvasion += glm::normalize(separacion) * (distanciaMinima - distancia);
+            }
+        }
 
-    if (numeroPeces > 6) {
-        inicializarPez(peces[6], centro + glm::vec3(3.0f, 6.0f, 0.0f), glm::vec3(-0.6f, 0.05f, 1.0f), glm::vec3(0.10f, 0.90f, 0.95f), 1.10f, 0.52f);
-    }
-
-    if (numeroPeces > 7) {
-        inicializarPez(peces[7], centro + glm::vec3(11.0f, 3.5f, -2.0f), glm::vec3(-1.0f, 0.05f, 0.15f), glm::vec3(0.95f, 0.45f, 0.10f), 0.95f, 0.68f);
-    }
-
-    if (numeroPeces > 8) {
-        inicializarPez(peces[8], centro + glm::vec3(-12.0f, 2.2f, 7.0f), glm::vec3(1.0f, 0.0f, -0.45f), glm::vec3(0.75f, 1.0f, 0.25f), 1.25f, 0.48f);
-    }
-
-    if (numeroPeces > 9) {
-        inicializarPez(peces[9], centro + glm::vec3(0.0f, 6.5f, -8.0f), glm::vec3(0.2f, -0.1f, 1.0f), glm::vec3(1.0f, 0.70f, 0.20f), 0.70f, 0.90f);
+        // Suavizamos el cambio de dirección para que no gire de golpe
+        if (glm::length(direccionEvasion) > 0.001f) {
+            glm::vec3 nuevaDireccion = glm::normalize(peces[i].direccion + direccionEvasion * 2.5f);
+            peces[i].direccion = glm::normalize(glm::mix(peces[i].direccion, nuevaDireccion, 4.0f * deltaTime));
+        }
     }
 }
 
 void actualizarPez(Pez& pez, const Acuario& acuario, float deltaTime) {
     glm::vec3 limiteMin = obtenerLimiteMinAcuario(acuario);
     glm::vec3 limiteMax = obtenerLimiteMaxAcuario(acuario);
+
+    // Margen para que el pez no atraviese las paredes
     float margen = pez.escala * 0.70f;
 
     pez.posicion += pez.direccion * pez.velocidad * deltaTime;
     pez.faseMovimiento += deltaTime * 6.0f;
 
+    // Rebote en los límites del acuario
     if (pez.posicion.x < limiteMin.x + margen) {
         pez.posicion.x = limiteMin.x + margen;
         pez.direccion.x *= -1.0f;
@@ -121,6 +149,9 @@ void actualizarPez(Pez& pez, const Acuario& acuario, float deltaTime) {
 }
 
 void actualizarPeces(Pez peces[], int numeroPeces, const Acuario& acuario, float deltaTime) {
+    // Primero se ajustan direcciones para evitar choques entre peces
+    evitarChoquesPeces(peces, numeroPeces, deltaTime);
+
     for (int i = 0; i < numeroPeces; i++) {
         actualizarPez(peces[i], acuario, deltaTime);
     }
@@ -129,6 +160,7 @@ void actualizarPeces(Pez peces[], int numeroPeces, const Acuario& acuario, float
 void dibujarPez(const Pez& pez, GLuint shaderProgram) {
     glm::mat4 modeloPez = crearMatrizModeloPez(pez);
 
+    // Movimiento oscilatorio para cola y aletas
     float anguloCola = sin(pez.faseMovimiento) * 25.0f;
     float anguloAletas = sin(pez.faseMovimiento + 1.5f) * 18.0f;
 

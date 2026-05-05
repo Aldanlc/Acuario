@@ -16,6 +16,8 @@ struct RecursosRender {
     GLuint texturaSuelo;
     GLuint texturaAcuario;
     GLuint texturaPez;
+    GLuint texturaAlga;
+    GLuint texturaCoral;
 };
 
 GLFWwindow* inicializarVentana(unsigned int ancho, unsigned int alto, const char* titulo);

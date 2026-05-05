@@ -4,6 +4,7 @@
 static void inicializarFocosAcuario(Acuario& acuario) {
     float margen = 0.35f;
 
+    // Calculamos posiciones internas para que los focos no queden justo pegados al cristal
     float xMin = acuario.limiteMin.x + margen;
     float xMax = acuario.limiteMax.x - margen;
     float yMin = acuario.limiteMin.y + margen;
@@ -11,6 +12,7 @@ static void inicializarFocosAcuario(Acuario& acuario) {
     float zMin = acuario.limiteMin.z + margen;
     float zMax = acuario.limiteMax.z - margen;
 
+    // Focos colocados en las esquinas superiores e inferiores del acuario
     glm::vec3 posiciones[NUM_FOCOS_ACUARIO] = {
         glm::vec3(xMin, yMax, zMin),
         glm::vec3(xMax, yMax, zMin),
@@ -24,13 +26,17 @@ static void inicializarFocosAcuario(Acuario& acuario) {
 
     for (int i = 0; i < NUM_FOCOS_ACUARIO; i++) {
         acuario.focos[i].posicion = posiciones[i];
+
+        // Cada foco apunta hacia el centro del acuario
         acuario.focos[i].direccion = glm::normalize(acuario.centro - posiciones[i]);
+
         acuario.focos[i].superior = i < 4;
         acuario.focos[i].encendido = true;
         acuario.focos[i].cutOff = 30.0f;
         acuario.focos[i].outerCutOff = 50.0f;
         acuario.focos[i].colorApagado = glm::vec3(0.12f, 0.12f, 0.14f);
 
+        // Distinto color para focos superiores e inferiores
         if (acuario.focos[i].superior) {
             acuario.focos[i].colorEncendido = glm::vec3(1.35f, 1.60f, 1.80f);
         }
@@ -51,9 +57,11 @@ void inicializarAcuario(Acuario& acuario, const glm::vec3& centro, const glm::ve
 
     glm::vec3 mitad = dimensiones * 0.5f;
 
+    // Límites internos del acuario, teniendo en cuenta el grosor del cristal
     acuario.limiteMin = centro - mitad + glm::vec3(acuario.grosorCristal);
     acuario.limiteMax = centro + mitad - glm::vec3(acuario.grosorCristal);
 
+    // Creamos la geometría del suelo, las paredes y los focos
     crearSueloAcuario(acuario);
     crearAcuario(acuario);
     inicializarFocosAcuario(acuario);
@@ -83,12 +91,14 @@ void alternarFocosInferiores(Acuario& acuario) {
 void alternarTodosLosFocos(Acuario& acuario) {
     bool algunoEncendido = false;
 
+    // Comprobamos si hay algún foco encendido
     for (int i = 0; i < NUM_FOCOS_ACUARIO; i++) {
         if (acuario.focos[i].encendido) {
             algunoEncendido = true;
         }
     }
 
+    // Si había alguno encendido, se apagan todos; si no, se encienden todos
     for (int i = 0; i < NUM_FOCOS_ACUARIO; i++) {
         acuario.focos[i].encendido = !algunoEncendido;
     }

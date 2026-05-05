@@ -27,6 +27,8 @@ struct Pez {
     PiezaPez aletaDerecha;
     PiezaPez ojoIzquierdo;
     PiezaPez ojoDerecho;
+
+    float radioColision; // para evitar que se choquen
 };
 
 void inicializarPez(Pez& pez, const glm::vec3& posicion, const glm::vec3& direccion, const glm::vec3& color, float velocidad, float escala);

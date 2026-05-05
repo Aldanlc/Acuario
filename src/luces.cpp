@@ -13,6 +13,7 @@ static void enviarVector3(GLuint shaderProgram, const std::string& nombreUniform
 }
 
 static void prepararColorFocoVisible(GLuint shaderProgram, const glm::vec3& color) {
+    // Configuramos el shader para dibujar el foco con color sólido, sin textura
     glUniform1i(glGetUniformLocation(shaderProgram, "usarTextura"), 0);
     glUniform1i(glGetUniformLocation(shaderProgram, "usarTexturaSuelo"), 0);
     glUniform1i(glGetUniformLocation(shaderProgram, "usarArbusto"), 0);
@@ -26,10 +27,12 @@ static glm::mat4 crearMatrizFocoVisible(const FocoAcuario& foco) {
 
     glm::vec3 direccion = glm::normalize(foco.direccion);
 
+    // Calculamos la orientación del foco según la dirección a la que apunta
     float yaw = atan2(direccion.x, direccion.z);
     float longitudHorizontal = sqrt(direccion.x * direccion.x + direccion.z * direccion.z);
     float pitch = atan2(direccion.y, longitudHorizontal);
 
+    // Colocamos, rotamos y escalamos la esfera para representar visualmente el foco
     model = glm::translate(model, foco.posicion);
     model = glm::rotate(model, yaw, glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, -pitch, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -39,15 +42,18 @@ static glm::mat4 crearMatrizFocoVisible(const FocoAcuario& foco) {
 }
 
 void configurarLucesAcuario(const Acuario& acuario, GLuint shaderProgram) {
+    // Enviamos al shader cuántos focos tiene que usar
     glUniform1i(glGetUniformLocation(shaderProgram, "numeroFocos"), NUM_FOCOS_ACUARIO);
 
     for (int i = 0; i < NUM_FOCOS_ACUARIO; i++) {
         std::string base = "focos[" + std::to_string(i) + "]";
 
+        // Parámetros principales del foco
         glUniform1i(glGetUniformLocation(shaderProgram, (base + ".encendido").c_str()), acuario.focos[i].encendido ? 1 : 0);
         glUniform1f(glGetUniformLocation(shaderProgram, (base + ".cutOff").c_str()), glm::cos(glm::radians(acuario.focos[i].cutOff)));
         glUniform1f(glGetUniformLocation(shaderProgram, (base + ".outerCutOff").c_str()), glm::cos(glm::radians(acuario.focos[i].outerCutOff)));
 
+        // Posición, dirección y color del foco
         enviarVector3(shaderProgram, base + ".posicion", acuario.focos[i].posicion);
         enviarVector3(shaderProgram, base + ".direccion", acuario.focos[i].direccion);
         enviarVector3(shaderProgram, base + ".color", acuario.focos[i].colorEncendido);
@@ -62,6 +68,7 @@ void dibujarFocosAcuario(const Acuario& acuario, GLuint shaderProgram) {
         prepararColorFocoVisible(shaderProgram, color);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
+        // Nos aseguramos de dibujar el foco sin ninguna textura activa
         activarTextura(shaderProgram, 0);
         
         glBindVertexArray(VAO_esfera);

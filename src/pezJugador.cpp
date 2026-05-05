@@ -14,6 +14,7 @@ static void limitarValor(float& valor, float minimo, float maximo) {
 }
 
 static void aplicarRozamiento(float& velocidad, float rozamiento, float deltaTime) {
+    // Reducimos la velocidad poco a poco para simular inercia
     velocidad -= velocidad * rozamiento * deltaTime;
 
     if (velocidad < 0.02f && velocidad > -0.02f) {
@@ -27,6 +28,7 @@ static void limitarPezJugadorAlAcuario(PezJugador& pezJugador, const Acuario& ac
     float margen = pezJugador.pez.escala * 0.75f;
     bool choqueHorizontal = false;
 
+    // Comprobamos que el pez jugador no salga de los límites del acuario
     if (pezJugador.pez.posicion.x < limiteMin.x + margen) {
         pezJugador.pez.posicion.x = limiteMin.x + margen;
         choqueHorizontal = true;
@@ -65,6 +67,7 @@ static void limitarPezJugadorAlAcuario(PezJugador& pezJugador, const Acuario& ac
 void actualizarDireccionPezJugador(PezJugador& pezJugador) {
     glm::vec3 direccion;
 
+    // Convertimos yaw y pitch a un vector dirección 3D
     direccion.x = sin(glm::radians(pezJugador.yaw)) * cos(glm::radians(pezJugador.pitch));
     direccion.y = sin(glm::radians(pezJugador.pitch));
     direccion.z = cos(glm::radians(pezJugador.yaw)) * cos(glm::radians(pezJugador.pitch));
@@ -76,11 +79,13 @@ void inicializarPezJugador(PezJugador& pezJugador, const Acuario& acuario) {
     pezJugador.yaw = 0.0f;
     pezJugador.pitch = 0.0f;
 
+    // Parámetros de movimiento horizontal
     pezJugador.velocidadActual = 0.0f;
     pezJugador.velocidadMaxima = 3.0f;
     pezJugador.aceleracion = 4.5f;
     pezJugador.rozamiento = 1.15f;
 
+    // Parámetros de movimiento vertical
     pezJugador.velocidadVerticalActual = 0.0f;
     pezJugador.velocidadVerticalMaxima = 2.0f;
     pezJugador.aceleracionVertical = 3.0f;
@@ -93,6 +98,7 @@ void inicializarPezJugador(PezJugador& pezJugador, const Acuario& acuario) {
 
     inicializarPez(pezJugador.pez, posicionInicial, glm::vec3(0.0f, 0.0f, 1.0f), colorJugador, 0.0f, 0.85f);
 
+    // Colores propios para diferenciar al pez jugador
     pezJugador.pez.cabeza.color = glm::vec3(0.55f, 0.12f, 0.95f);
     pezJugador.pez.cola.color = glm::vec3(1.0f, 0.45f, 0.95f);
     pezJugador.pez.aletaIzquierda.color = glm::vec3(1.0f, 0.45f, 0.95f);
@@ -107,10 +113,12 @@ void girarPezJugador(PezJugador& pezJugador, float giroYaw, float deltaTime) {
 }
 
 void moverPezJugador(PezJugador& pezJugador, const Acuario& acuario, float acelerar, float subida, float deltaTime) {
+    // Aceleración hacia delante
     if (acelerar > 0.0f) {
         pezJugador.velocidadActual += pezJugador.aceleracion * deltaTime;
     }
 
+    // Movimiento vertical
     if (subida > 0.0f) {
         pezJugador.velocidadVerticalActual += pezJugador.aceleracionVertical * deltaTime;
     }
@@ -127,6 +135,7 @@ void moverPezJugador(PezJugador& pezJugador, const Acuario& acuario, float acele
 
     float pitchObjetivo = 0.0f;
 
+    // Inclinamos el pez hacia arriba o abajo según su movimiento vertical
     if (pezJugador.velocidadVerticalActual > 0.08f) {
         pitchObjetivo = 25.0f;
     }
@@ -141,6 +150,7 @@ void moverPezJugador(PezJugador& pezJugador, const Acuario& acuario, float acele
     limitarValor(pezJugador.pitch, -35.0f, 35.0f);
     actualizarDireccionPezJugador(pezJugador);
 
+    // Aplicamos el desplazamiento final del pez jugador
     pezJugador.pez.posicion += pezJugador.pez.direccion * pezJugador.velocidadActual * deltaTime;
     pezJugador.pez.posicion.y += pezJugador.velocidadVerticalActual * deltaTime;
 
@@ -148,6 +158,7 @@ void moverPezJugador(PezJugador& pezJugador, const Acuario& acuario, float acele
 }
 
 void actualizarPezJugador(PezJugador& pezJugador, float deltaTime) {
+    // La animación se mueve más rápido cuanto más rápido nada el jugador
     float velocidadAnimacion = 4.0f + pezJugador.velocidadActual * 2.0f;
     pezJugador.pez.faseMovimiento += deltaTime * velocidadAnimacion;
 }

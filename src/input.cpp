@@ -24,6 +24,7 @@ static void limitarValor(float& valor, float minimo, float maximo) {
 static glm::vec3 calcularFrenteCamaraLibre(const EstadoEntrada& estado) {
     glm::vec3 frente;
 
+    // Convertimos yaw y pitch de la cámara libre en un vector dirección
     frente.x = cos(glm::radians(estado.yawCamaraLibre)) * cos(glm::radians(estado.pitchCamaraLibre));
     frente.y = sin(glm::radians(estado.pitchCamaraLibre));
     frente.z = sin(glm::radians(estado.yawCamaraLibre)) * cos(glm::radians(estado.pitchCamaraLibre));
@@ -38,6 +39,7 @@ static void procesarSalida(GLFWwindow* window) {
 }
 
 static void procesarCamaras(GLFWwindow* window, EstadoEntrada& estado) {
+    // Cambio entre los distintos modos de cámara
     if (teclaPresionada(window, GLFW_KEY_1)) {
         estado.modoCamara = 1;
     }
@@ -66,6 +68,7 @@ static void procesarMovimientoCamaraLibre(GLFWwindow* window, EstadoEntrada& est
     glm::vec3 frente = calcularFrenteCamaraLibre(estado);
     glm::vec3 derecha = glm::normalize(glm::cross(frente, glm::vec3(0.0f, 1.0f, 0.0f)));
 
+    // Movimiento de cámara libre en horizontal y vertical
     if (teclaPresionada(window, GLFW_KEY_I)) {
         estado.posicionCamaraLibre += frente * velocidadMovimiento * deltaTime;
     }
@@ -90,6 +93,7 @@ static void procesarMovimientoCamaraLibre(GLFWwindow* window, EstadoEntrada& est
         estado.posicionCamaraLibre.y -= velocidadMovimiento * deltaTime;
     }
 
+    // Rotación de la cámara libre
     if (teclaPresionada(window, GLFW_KEY_LEFT)) {
         estado.yawCamaraLibre -= velocidadGiro * deltaTime;
     }
@@ -106,6 +110,7 @@ static void procesarMovimientoCamaraLibre(GLFWwindow* window, EstadoEntrada& est
         estado.pitchCamaraLibre -= velocidadGiro * deltaTime;
     }
 
+    // Evitamos que la cámara se gire demasiado verticalmente
     limitarValor(estado.pitchCamaraLibre, -89.0f, 89.0f);
 }
 
@@ -114,6 +119,7 @@ static void procesarMovimientoPezJugador(GLFWwindow* window, PezJugador& pezJuga
     float subida = 0.0f;
     float giroYaw = 0.0f;
 
+    // Controles del pez jugador
     if (teclaPresionada(window, GLFW_KEY_W)) {
         acelerar = 1.0f;
     }
@@ -139,6 +145,7 @@ static void procesarMovimientoPezJugador(GLFWwindow* window, PezJugador& pezJuga
 }
 
 static void procesarLuces(GLFWwindow* window, EstadoEntrada& estado, Acuario& acuario) {
+    // Se usan flags para que cada pulsación cambie las luces solo una vez
     if (teclaPresionada(window, GLFW_KEY_T) && !estado.teclaFocosSuperioresPulsada) {
         alternarFocosSuperiores(acuario);
         estado.teclaFocosSuperioresPulsada = true;
@@ -168,6 +175,7 @@ static void procesarLuces(GLFWwindow* window, EstadoEntrada& estado, Acuario& ac
 }
 
 void inicializarEstadoEntrada(EstadoEntrada& estado) {
+    // Estado inicial de cámara y teclas de luces
     estado.modoCamara = 2;
 
     estado.posicionCamaraLibre = glm::vec3(0.0f, 4.0f, 18.0f);
@@ -180,6 +188,7 @@ void inicializarEstadoEntrada(EstadoEntrada& estado) {
 }
 
 void processInput(GLFWwindow* window, EstadoEntrada& estado, PezJugador& pezJugador, Acuario& acuario, float deltaTime) {
+    // Agrupamos todo el procesamiento de entrada del frame
     procesarSalida(window);
     procesarCamaras(window, estado);
     procesarMovimientoCamaraLibre(window, estado, deltaTime);
